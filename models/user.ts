@@ -1,5 +1,5 @@
-import mongoose, { Document } from "mongoose";
-interface IUser extends Document {
+import mongoose from "mongoose";
+interface IUser {
   name: string;
   email: string;
   password: string;

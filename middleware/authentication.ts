@@ -1,10 +1,6 @@
 import jwt from "jsonwebtoken";
-import { config } from "dotenv";
 import { Request, Response, NextFunction } from "express";
-import User from "../Database/user";
-config({
-  path: "./Database/config.env",
-});
+import User from "../models/user";
 const jwt_secret: string = process.env.jwt_secret as string;
 const authentication = (
   req: Request,

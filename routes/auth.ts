@@ -1,28 +1,25 @@
 import express, { Request, Response } from "express";
-import User from "../Database/user";
+import User from "../models/user";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { config } from "dotenv";
-config({
-  path: "./config.env",
-});
+import jwt from "jsonwebtoken";      
+import * as dotenv from "dotenv";
+dotenv.config();
 const jwt_secret: string = process.env.JWT_secret as string;
 const router = express.Router();
-router.post("/signup", async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post("/signup", async (req: Request, res: Response): Promise<any> => {
+  
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
+      
       res.status(400).json({ msg: "Please fill all fields carefully" });
       return;
     }
-    const finduser = await User.findOne({
-      $or: [{ email: email }, { name: name }],
-    });
+    try {
+    const finduser = await User.findOne(
+      { email: email },
+    );
     if (finduser) {
-      res.status(422).json({
-        error: "User already exists",
-      });
-      return;
+      throw new Error("User already exists")
     }
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
@@ -30,44 +27,34 @@ router.post("/signup", async (req: Request, res: Response): Promise<void> => {
       email,
       password: hashedPassword,
     });
-    res.status(201).json({
+    return res.status(201).json({
       message: "Registration Successful",
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+  } catch (err:any) {
+    res.status(500).json({ error: err.message });
   }
 });
-router.post("/signin", async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post("/signin", async (req: Request, res: Response): Promise<any> => {
     const { email, password } = req.body;
-
     if (!email || !password) {
-      res.status(422).json({
-        error: "Please fill Email and Password carefully",
-      });
-      return;
+      return res.status(500).json({error:"Please fill all the fields carefully."})
     }
+    try {
     const user = await User.findOne({ email: email });
     if (!user) {
-      res.status(404).json({
-        error: "User not found",
-      });
-      return;
+      throw new Error("User not found.")
     }
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = jwt.sign({ _id: user.id }, jwt_secret);
       res.json({ success: true, token });
     } else {
-      res.status(401).json({
-        error: "Invalid password",
-      });
-      return;
+      throw new Error("Invalid Password")
     }
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-    return;
+  } catch (error:any) {
+    res.status(500).json({
+        error: error.message
+    });
   }
 });
 export default router;
