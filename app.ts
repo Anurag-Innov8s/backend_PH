@@ -2,8 +2,6 @@ import express, { Application } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "./routes/auth";
-import * as dotenv from "dotenv";
-dotenv.config();
 const app: Application = express();
 app.use(cors());
 app.use(express.json());
@@ -12,7 +10,6 @@ app.use(authRoutes);
     dbName: "Social_media_backend",
   });
   console.log("Database Connected");
-
   app.listen(process.env.port as string, () => {
     console.log("Server Started");
   });
