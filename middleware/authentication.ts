@@ -30,7 +30,6 @@ const authentication = (
         req.user = <any>userData;
       }
       next();
-      console.log(userData);
     });
   } catch (err: any) {
     res.status(401).json({ error: err.message });
