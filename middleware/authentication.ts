@@ -1,30 +1,39 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 const jwt_secret: string = process.env.jwt_secret as string;
 const authentication = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  const { authorization } = req.headers;
-  if (!authorization) {
-    res.status(400).json({
-      err: "You must login first",
-    });
-    return;
-  }
-  const token: string = (authorization as string).replace("Bearer ", "");
-  jwt.verify(token, jwt_secret, (err: any, payload: any) => {
-    if (err) {
-      return res.status(401).json({
-        err: "You must login first",
-      });
+): any => {
+  try {
+    const { authorization } = req.headers;
+    if (!authentication) {
+      throw new Error("You must Login first.");
     }
-    const { _id } = payload;
-    User.findById(_id);
-  });
-  res.json({ msg: "You are logged in" });
-  next();
+    const token: string = (authorization as string).replace("Bearer ", "");
+    jwt.verify(token, jwt_secret, async (err: any, payload: any) => {
+      if (err) {
+        throw new Error("You must Login first.");
+      }
+      const { _id } = payload;
+      const userData = await User.findById(_id);
+      if (userData) {
+        req.user = <any>userData;
+      }
+      next();
+      console.log(userData);
+    });
+  } catch (err: any) {
+    res.status(401).json({ error: err.message });
+  }
 };
 export default authentication;
