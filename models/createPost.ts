@@ -14,6 +14,7 @@ const postSchema: Schema<IPost> = new mongoose.Schema({
   },
   photo: {
     type: String,
+    default: "picture url",
     required: true,
   },
   postedBy: {

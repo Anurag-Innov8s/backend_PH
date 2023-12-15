@@ -16,7 +16,7 @@ const authentication = (
 ): any => {
   try {
     const { authorization } = req.headers;
-    if (!authentication) {
+    if (!authorization) {
       throw new Error("You must Login first.");
     }
     const token: string = (authorization as string).replace("Bearer ", "");
