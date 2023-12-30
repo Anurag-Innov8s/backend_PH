@@ -6,6 +6,7 @@ interface IPost {
   body: string;
   photo: string;
   postedBy: Types.ObjectId | IUser;
+  likes:Types.ObjectId;
 }
 const postSchema: Schema<IPost> = new mongoose.Schema({
   body: {
@@ -14,7 +15,7 @@ const postSchema: Schema<IPost> = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: "picture url",
+    default: "",
     required: true,
   },
   postedBy: {
@@ -22,5 +23,13 @@ const postSchema: Schema<IPost> = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-});
+  likes:[{
+    type:Types.ObjectId,
+    ref:"User"
+  }],
+},
+{
+    timestamps:true
+  }
+);
 export const Post = mongoose.model<IPost>("POST", postSchema);
